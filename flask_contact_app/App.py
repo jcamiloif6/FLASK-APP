@@ -16,10 +16,10 @@ app.secret_key = 'mysecretkey'
 @app.route('/')
 def Index():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM contacts')
+    cur.execute('SELECT * FROM contacts1')
     data = cur.fetchall()
     cur.close()
-    return render_template('index.html', contacts = data)
+    return render_template('index.html', contacts1 = data)
 
 @app.route('/add_contact', methods=['POST'])
 def add_contact():
@@ -27,9 +27,11 @@ def add_contact():
          fullname = request.form['fullname']
          phone = request.form['phone']
          email = request.form['email']
+         age = request.form['age']
+         profession = request.form['profession']
          cur = mysql.connection.cursor()   
-         cur.execute("INSERT INTO contacts (fullname, phone, email) VALUES (%s, %s, %s)",
-         (fullname, phone, email))
+         cur.execute("INSERT INTO contacts1 (fullname, phone, email, age, profession) VALUES(%s, %s, %s, %s, %s)",
+         (fullname, phone, email, age, profession))
          mysql.connection.commit()
          flash('Contact Adedd Succesfully')
          return redirect(url_for('Index'))
@@ -37,7 +39,7 @@ def add_contact():
 @app.route('/edit/<id>', methods = ['POST', 'GET'])
 def get_contact(id):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM contacts WHERE id = %s", [id])
+    cur.execute("SELECT * FROM contacts1 WHERE id = %s", [id])
     data = cur.fetchall()
     cur.close()
     return render_template('edit-contact.html', contact = data[0])
@@ -48,14 +50,18 @@ def update_contact(id):
         fullname = request.form['fullname']
         phone = request.form['phone']
         email = request.form['email']
+        age = request.form['age']
+        profession = request.form['profession']
         cur = mysql.connection.cursor()
         cur.execute("""
-            UPDATE contacts
+            UPDATE contacts1
             SET fullname = %s,
+                phone = %s,
                 email = %s,
-                phone = %s
+                age = %s,
+                profession = %s
             WHERE id = %s
-        """, (fullname, email, phone, id))
+        """, (fullname, email, phone, age, profession, id))
         flash('Contact Updated Successfully')
         mysql.connection.commit()
         return redirect(url_for('Index'))
@@ -63,7 +69,7 @@ def update_contact(id):
 @app.route('/delete/<string:id>', methods=['POST', 'GET'])
 def delete_contact(id):
      cur = mysql.connection.cursor()
-     cur.execute('DELETE FROM contacts WHERE id = {0}'.format(id))
+     cur.execute('DELETE FROM contacts1 WHERE id = {0}'.format(id))
      mysql.connection.commit()
      flash('Contact Removed Succesfully')
      return redirect(url_for('Index'))
